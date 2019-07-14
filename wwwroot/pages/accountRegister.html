@@ -2,10 +2,13 @@
 <html lang="zh-CN">
 <head>
     <meta charset="utf-8" />
-    <link href="../lib/layui_v2.5.4/css/layui.css" rel="stylesheet" />
+    <script src="../js/commonCss.js"></script>
     <title>注册</title>
     <style>
-        .hasInfoTips {display:block;height:18px;}
+        .hasInfoTips {
+            display: block;
+            height: 18px;
+        }
     </style>
 </head>
 <body>
@@ -20,7 +23,7 @@
                         <label class="layui-form-label">账号</label>
                         <div class="layui-input-block">
                             <input v-model="username" v-on:blur="checkHasUsername" type="text" name="title" required lay-verify="required" placeholder="请输入标题" autocomplete="off" class="layui-input">
-                            <span  class="layui-badge hasInfoTips" v-show="hasUsername">已存在相同用户名</span>
+                            <span style="display:none;" class="layui-badge hasInfoTips" v-show="hasUsername">已存在相同用户名</span>
                         </div>
                     </div>
                     <div class="layui-form-item">
@@ -38,8 +41,8 @@
                     <div class="layui-form-item">
                         <label class="layui-form-label">手机</label>
                         <div class="layui-input-block">
-                            <input v-model="phone" v-on:blur="checkHasPhone"  type="text" name="title" required lay-verify="required" placeholder="请输入标题" autocomplete="off" class="layui-input">
-                            <span class="layui-badge hasInfoTips" v-show="hasPhone">已存在相同手机号</span>
+                            <input v-model="phone" v-on:blur="checkHasPhone" type="text" name="title" required lay-verify="required" placeholder="请输入标题" autocomplete="off" class="layui-input">
+                            <span style="display:none;" class="layui-badge hasInfoTips" v-show="hasPhone">已存在相同手机号</span>
                         </div>
                     </div>
                     <div class="layui-row layui-col-space10">
@@ -58,10 +61,7 @@
             </div>
         </div>
     </div>
-    <script src="../lib/layui_v2.5.4/layui.all.js"></script>
-    <script src="../lib/vue_v2.6.10/vue.js"></script>
-    <script src="../lib/jquery/dist/jquery.js"></script>
-    <script src="../lib/underscore_v1.9.1/underscore.js"></script>
+    <script src="../js/commonJs.js"></script>
     <script>
         //axios.defaults.headers = {
         //    "Content-Type": "application/x-www-form-urlencoded;charset=utf-8"
@@ -75,16 +75,13 @@
                 phone: "",
 
                 hasUsername: false,
-                hasPhone:false,
+                hasPhone: false,
             },
             methods: {
                 checkHasUsername: function () {
                     $.ajax({
                         //请求方式
                         type: "POST",
-                        accepts: "application/json",
-                        //请求的媒体类型
-                        contentType: "application/json;charset=UTF-8",
                         dataType: 'text',
                         //请求地址
                         url: "/api/account/check",
@@ -101,11 +98,6 @@
                             } else {
                                 app.hasUsername = false;
                             }
-                        },
-                        //请求失败，包含具体的错误信息
-                        error: function (e) {
-                            console.log(e.status);
-                            console.log(e.responseText);
                         }
                     });
                 },
@@ -113,9 +105,6 @@
                     $.ajax({
                         //请求方式
                         type: "POST",
-                        accepts: "application/json",
-                        //请求的媒体类型
-                        contentType: "application/json;charset=UTF-8",
                         dataType: 'text',
                         //请求地址
                         url: "/api/account/check",
@@ -132,11 +121,6 @@
                             } else {
                                 app.hasPhone = false;
                             }
-                        },
-                        //请求失败，包含具体的错误信息
-                        error: function (e) {
-                            console.log(e.status);
-                            console.log(e.responseText);
                         }
                     });
                 },
@@ -170,11 +154,6 @@
                             } else {
                                 layer.msg(result);
                             }
-                        },
-                        //请求失败，包含具体的错误信息
-                        error: function (e) {
-                            console.log(e.status);
-                            console.log(e.responseText);
                         }
                     });
                 },

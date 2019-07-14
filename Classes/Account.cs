@@ -8,12 +8,12 @@ namespace Tor_TaskScheduleWebApiCore2.Classes
     [Serializable]
     public class Account
     {
-        public string Id { get; set; }
+        public Guid Id { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
         public string Nickname { get; set; }
         public string Phone { get; set; }
-        public short Role { get; set; }
+        public short? Role { get; set; }
         public DateTime Update_time { get; set; }
         public DateTime Created_time { get; set; }
 

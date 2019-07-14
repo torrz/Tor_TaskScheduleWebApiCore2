@@ -36,7 +36,77 @@ namespace Tor_TaskScheduleWebApiCore2.Controllers
 
             return Ok();
         }
+        [HttpPost]
+        public IActionResult Login([FromBody] Account account)
+        {
+            account.Password = Encrypt(account.Password);
+            string sql = @"SELECT * FROM account WHERE username=@username AND password=@password;";
+            using (var conn = new SqlConnection(ConfigSettings.DefaultConnection))
+            {
+                var foundUser = conn.QueryFirstOrDefault<Account>(sql,account);
+                if (foundUser != null)
+                {
+                    return Ok();
+                }
+                else
+                {
+                    return Ok("notFound");
+                }
+            }
+        }
 
+        // POST api/account/register
+        [HttpPost]
+        public IActionResult Register([FromBody] Account account)
+        {
+            if (HasAccount(account))
+            {
+                return Ok(HAS_ACOUNT_INFO);
+            }
+            account.Password = Encrypt(account.Password);
+            string sqlRegister =
+                @"INSERT INTO account
+                 ([username],[password],[nickname],[phone],[role])
+                  VALUES
+                 (@username,@password,@nickname,@phone,@role)";
+            using (var conn = new SqlConnection(ConfigSettings.DefaultConnection))
+            {
+                var affectedRows = conn.Execute(sqlRegister,
+                    account);
+            }
+            return Ok();
+        }
+
+        // POST api/account/delete
+        [HttpPost]
+        public IActionResult Delete([FromBody] JArray ids)
+        {
+            return Ok();
+        }
+
+
+        /// <summary>
+        /// MD5编码
+        /// </summary>
+        /// <param name="str_raw"></param>
+        /// <returns></returns>
+        private static string Encrypt(string str_raw)
+        {
+            MD5 md5 = MD5.Create();
+            byte[] bytes = md5.ComputeHash(Encoding.UTF8.GetBytes(str_raw));
+
+            string encryptStr = "";
+            foreach (byte b in bytes)
+            {
+                encryptStr += b.ToString("x2");
+            }
+            return encryptStr;
+        }
+        /// <summary>
+        /// 判断是否存在相同的用户信息
+        /// </summary>
+        /// <param name="account"></param>
+        /// <returns></returns>
         private bool HasAccount(Account account)
         {
             string sql = @"SELECT 1 AS count FROM account WHERE ";
@@ -72,60 +142,6 @@ namespace Tor_TaskScheduleWebApiCore2.Controllers
                     return false;
                 }
             }
-        }
-
-
-        public IActionResult Login([FromBody] Account account)
-        {
-
-            return Ok();
-        }
-
-        // POST api/account/register
-        [HttpPost]
-        public IActionResult Register([FromBody] Account account)
-        {
-            if (HasAccount(account))
-            {
-                return Ok(HAS_ACOUNT_INFO);
-            }
-            account.Password = Encrypt(account.Password);
-            string sqlRegister =
-                @"INSERT INTO account
-                 ([username],[password],[nickname],[phone],[role])
-                  VALUES
-                 (@username,@password,@nickname,@phone,@role)";
-            using (var conn = new SqlConnection(ConfigSettings.DefaultConnection))
-            {
-                var affectedRows = conn.Execute(sqlRegister,
-                    account);
-            }
-            return Ok();
-        }
-
-        // POST api/account/delete
-        [HttpPost]
-        public IActionResult Delete([FromBody] JArray ids)
-        {
-            return Ok();
-        }
-
-        /// <summary>
-        /// MD5编码
-        /// </summary>
-        /// <param name="str_raw"></param>
-        /// <returns></returns>
-        private static string Encrypt(string str_raw)
-        {
-            MD5 md5 = MD5.Create();
-            byte[] bytes = md5.ComputeHash(Encoding.UTF8.GetBytes(str_raw));
-
-            string encryptStr = "";
-            foreach (byte b in bytes)
-            {
-                encryptStr += b.ToString("x2");
-            }
-            return encryptStr;
         }
     }
 }
