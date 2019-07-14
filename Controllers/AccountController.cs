@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using Dapper;
 using Microsoft.AspNetCore.Http;
@@ -18,14 +20,76 @@ namespace Tor_TaskScheduleWebApiCore2.Controllers
     {
         private ConnectionStrings ConfigSettings { get; set; }
 
+        private const string HAS_ACOUNT_INFO= "hasAccountInfo";
+
+
         public AccountController(IOptions<ConnectionStrings> settings)
         {
             ConfigSettings = settings.Value;
         }
+
+        [HttpPost]
+        public IActionResult Check([FromBody] Account account)
+        {
+            if (HasAccount(account))
+                return Ok(HAS_ACOUNT_INFO);
+
+            return Ok();
+        }
+
+        private bool HasAccount(Account account)
+        {
+            string sql = @"SELECT 1 AS count FROM account WHERE ";
+            DynamicParameters parameter = new DynamicParameters();
+            if (!string.IsNullOrWhiteSpace(account.Username))
+            {
+                sql += @" [username]=@username ";
+                parameter.Add("@username", account.Username);
+            }
+            if (!string.IsNullOrWhiteSpace(account.Phone))
+            {
+                if (parameter.ParameterNames.Count() > 0)
+                {
+                    sql += " OR ";
+                }
+                sql += @" [phone]=@phone ";
+                parameter.Add("@phone", account.Phone);
+            }
+
+            if (parameter.ParameterNames.Count() == 0)
+            {
+                throw new Exception("传入检查的参数");
+            }
+            using (var conn = new SqlConnection(ConfigSettings.DefaultConnection))
+            {
+                var result = conn.QueryFirstOrDefault(sql, parameter);
+                if (result != null)//没有行不会查出东西，即为null
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+
+        public IActionResult Login([FromBody] Account account)
+        {
+
+            return Ok();
+        }
+
         // POST api/account/register
         [HttpPost]
-        public string Register([FromBody] Account account)
+        public IActionResult Register([FromBody] Account account)
         {
+            if (HasAccount(account))
+            {
+                return Ok(HAS_ACOUNT_INFO);
+            }
+            account.Password = Encrypt(account.Password);
             string sqlRegister =
                 @"INSERT INTO account
                  ([username],[password],[nickname],[phone],[role])
@@ -33,9 +97,35 @@ namespace Tor_TaskScheduleWebApiCore2.Controllers
                  (@username,@password,@nickname,@phone,@role)";
             using (var conn = new SqlConnection(ConfigSettings.DefaultConnection))
             {
-                var affectedRows = conn.Execute(sqlRegister, new { });
+                var affectedRows = conn.Execute(sqlRegister,
+                    account);
             }
-            return "急啊急啊就";
+            return Ok();
+        }
+
+        // POST api/account/delete
+        [HttpPost]
+        public IActionResult Delete([FromBody] JArray ids)
+        {
+            return Ok();
+        }
+
+        /// <summary>
+        /// MD5编码
+        /// </summary>
+        /// <param name="str_raw"></param>
+        /// <returns></returns>
+        private static string Encrypt(string str_raw)
+        {
+            MD5 md5 = MD5.Create();
+            byte[] bytes = md5.ComputeHash(Encoding.UTF8.GetBytes(str_raw));
+
+            string encryptStr = "";
+            foreach (byte b in bytes)
+            {
+                encryptStr += b.ToString("x2");
+            }
+            return encryptStr;
         }
     }
 }

@@ -4,6 +4,9 @@
     <meta charset="utf-8" />
     <link href="../lib/layui_v2.5.4/css/layui.css" rel="stylesheet" />
     <title>注册</title>
+    <style>
+        .hasInfoTips {display:block;height:18px;}
+    </style>
 </head>
 <body>
     <div class="layui-fluid">
@@ -16,7 +19,8 @@
                     <div class="layui-form-item">
                         <label class="layui-form-label">账号</label>
                         <div class="layui-input-block">
-                            <input v-model="username" type="text" name="title" required lay-verify="required" placeholder="请输入标题" autocomplete="off" class="layui-input">
+                            <input v-model="username" v-on:blur="checkHasUsername" type="text" name="title" required lay-verify="required" placeholder="请输入标题" autocomplete="off" class="layui-input">
+                            <span  class="layui-badge hasInfoTips" v-show="hasUsername">已存在相同用户名</span>
                         </div>
                     </div>
                     <div class="layui-form-item">
@@ -34,7 +38,8 @@
                     <div class="layui-form-item">
                         <label class="layui-form-label">手机</label>
                         <div class="layui-input-block">
-                            <input v-model="phone" type="text" name="title" required lay-verify="required" placeholder="请输入标题" autocomplete="off" class="layui-input">
+                            <input v-model="phone" v-on:blur="checkHasPhone"  type="text" name="title" required lay-verify="required" placeholder="请输入标题" autocomplete="off" class="layui-input">
+                            <span class="layui-badge hasInfoTips" v-show="hasPhone">已存在相同手机号</span>
                         </div>
                     </div>
                     <div class="layui-row layui-col-space10">
@@ -64,34 +69,107 @@
         var app = new Vue({
             el: "#app",
             data: {
-                username: "tor",
-                password: "123456",
+                username: "",
+                password: "",
                 nickname: "",
-                phone: ""
+                phone: "",
+
+                hasUsername: false,
+                hasPhone:false,
             },
             methods: {
-                confirm: function () {
+                checkHasUsername: function () {
                     $.ajax({
                         //请求方式
                         type: "POST",
                         accepts: "application/json",
                         //请求的媒体类型
                         contentType: "application/json;charset=UTF-8",
-                        dataType: 'json',
+                        dataType: 'text',
+                        //请求地址
+                        url: "/api/account/check",
+                        //数据，json字符串
+                        data: JSON.stringify(
+                            {
+                                username: app.username
+                            }
+                        ),
+                        //请求成功
+                        success: function (result) {
+                            if (result !== "") {
+                                app.hasUsername = true;
+                            } else {
+                                app.hasUsername = false;
+                            }
+                        },
+                        //请求失败，包含具体的错误信息
+                        error: function (e) {
+                            console.log(e.status);
+                            console.log(e.responseText);
+                        }
+                    });
+                },
+                checkHasPhone: function () {
+                    $.ajax({
+                        //请求方式
+                        type: "POST",
+                        accepts: "application/json",
+                        //请求的媒体类型
+                        contentType: "application/json;charset=UTF-8",
+                        dataType: 'text',
+                        //请求地址
+                        url: "/api/account/check",
+                        //数据，json字符串
+                        data: JSON.stringify(
+                            {
+                                phone: app.phone
+                            }
+                        ),
+                        //请求成功
+                        success: function (result) {
+                            if (result !== "") {
+                                app.hasPhone = true;
+                            } else {
+                                app.hasPhone = false;
+                            }
+                        },
+                        //请求失败，包含具体的错误信息
+                        error: function (e) {
+                            console.log(e.status);
+                            console.log(e.responseText);
+                        }
+                    });
+                },
+                confirm: function () {
+                    if (app.hasUsername || app.hasPhone) {
+                        layer.msg("请根据提示修改注册信息再进行注册");
+                        return false;
+                    }
+                    $.ajax({
+                        //请求方式
+                        type: "POST",
+                        accepts: "application/json",
+                        //请求的媒体类型
+                        contentType: "application/json;charset=UTF-8",
+                        dataType: 'text',
                         //请求地址
                         url: "/api/account/register",
                         //数据，json字符串
                         data: JSON.stringify(
                             {
-                                username: this.username,
-                                password: this.password,
-                                nickname: this.nickname,
-                                phone: this.phone
+                                username: app.username,
+                                password: app.password,
+                                nickname: app.nickname,
+                                phone: app.phone
                             }
                         ),
                         //请求成功
                         success: function (result) {
-                            console.log(result);
+                            if (result === "") {
+                                layer.msg("注册成功!");
+                            } else {
+                                layer.msg(result);
+                            }
                         },
                         //请求失败，包含具体的错误信息
                         error: function (e) {
