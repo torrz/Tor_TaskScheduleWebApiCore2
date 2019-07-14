@@ -1,0 +1,65 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8" />
+    <link href="../lib/layui_v2.5.4/css/layui.css" rel="stylesheet" />
+    <title>主页</title>
+</head>
+<body>
+    <div class="layui-fluid">
+        <h1></h1>
+        <div id="app" class="layui-row layui-col-space10">
+            <div class="layui-col-md4">
+            </div>
+            <div class="layui-col-md4">
+                <div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">账号</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="title" required lay-verify="required" placeholder="请输入标题" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">密码</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="title" required lay-verify="required" placeholder="请输入标题" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-row layui-col-space10">
+                        <div class="layui-col-md2">
+                        </div>
+                        <div class="layui-col-md8">
+                            <button type="button" class="layui-btn layui-btn-radius layui-btn-normal">登录</button>
+                            <button type="button" class="layui-btn layui-btn-radius layui-btn-primary">忘记密码</button>
+                            <button type="button" v-on:click="register" class="layui-btn layui-btn-radius layui-btn-primary">注册</button>
+
+                        </div>
+                        <div class="layui-col-md2">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-col-md4">
+            </div>
+        </div>
+    </div>
+    <script src="../lib/layui_v2.5.4/layui.all.js"></script>
+    <script src="../lib/vue_v2.6.10/vue.js"></script>
+    <script src="../lib/axios/axios.min.js"></script>
+    <script src="../lib/underscore_v1.9.1/underscore.js"></script>
+    <script>
+        var app = new Vue({
+            el: "#app",
+            data: {
+
+            },
+            methods: {
+                register: function (evetn) {
+                    window.location.href = "accountRegister.html";
+                }
+            }
+        })
+
+    </script>
+</body>
+</html>
